@@ -61,8 +61,8 @@ USE_ELEVENLABS = True
 ELEVENLABS_API_KEY = os.getenv('ELEVENLABS_API_KEY')
 
 ELEVENLABS_VOICES = {
-    'fr': 'tLK6fPv15M0oKv4V3ACR',  # Melanie
-    'en': '9RpXYdocFG8u7K3pqNxi',  # Samantha Narrations
+    'fr': 'PSVUmed8NvS8aUA3d5oO',  # Narration FR (voix Houda)
+    'en': 'lxYfHSkYm1EzQzGhdbfc',  # Narration EN (voix Houda)
     'es': '1eHrpOW5l98cxiSRjbzJ',  # Raquel
     'ar': 'mRdG9GYEjJmIzqbYTidv',  # Sana
 }
@@ -771,7 +771,6 @@ Ce code expire dans 15 minutes.
 
 Si vous n'avez pas demandé cette réinitialisation, ignorez cet email. 
 Votre mot de passe actuel restera inchangé.
-
 — L'équipe TinyTales"""
 
     await send_email(
@@ -1256,173 +1255,173 @@ Rich descriptions. Clear arc. Meaningful dialogue."""
         "honesty is always the right choice",
         "patience leads to beautiful rewards"
     ]
+
+    # ── 10 different ending types to force real diversity ──
+    ending_types = [
+        "The main character solves their problem ALONE, through their own courage, cleverness, or kindness. No friendship summary.",
+        "The main character goes back home carrying a small precious souvenir (a feather, a stone, a seed, a drawing). End on that object in their hand.",
+        "The main character learns something important about THEMSELVES (not about friendship). They feel quietly proud.",
+        "The main character helps someone, then calmly walks away. No big thank you scene, no friendship declaration.",
+        "The main character discovers a small magical secret and decides to keep it to themselves. End with a quiet smile.",
+        "The main character returns home and tells their mom or dad about the adventure. End on the parent's reaction.",
+        "The main character falls asleep peacefully, dreaming of the day. End on a soft image (moon, blanket, stars).",
+        "The main character makes a quiet promise — to nature, to an animal, or to themselves — and keeps walking.",
+        "The main character finds a lost object that was precious to them. End on the joy of holding it again.",
+        "The main character stops and simply contemplates the beauty around them in a calm, silent moment. End on what they see.",
+    ]
+    chosen_ending = random.choice(ending_types)
     chosen_value = random.choice(values)
     chosen_opening = random.choice(STORY_OPENINGS)
     physical_rules = get_animal_abilities(named_characters)
 
-    prompt = f"""You are a world-class children's book author — think of the storytelling craft of Roald Dahl, 
-the warmth of Beatrix Potter, and the imagination of Dr. Seuss, combined into one voice.
+    prompt = f"""You are writing a BEAUTIFUL, REALISTIC-FEELING children's story for a {age}-year-old.
+Not an "AI story." A real, warm, joyful story — like a classic picture book.
 
-You do not write "AI stories." You write REAL stories — vivid, surprising, emotionally resonant, 
-and beautifully structured. Every word earns its place.
+═══════════════════════════════════════════════════════════
+⚠️  RULE #1 — PHYSICAL REALITY  (MOST IMPORTANT RULE)
+═══════════════════════════════════════════════════════════
+Every character keeps the body it really has. NO EXCEPTIONS.
 
-Your mission: Write a masterpiece-level children's story for a {age}-year-old child.
-
-════════════════════════════════════════
-📖  STORY FOUNDATION
-════════════════════════════════════════
-{story_context}
-
-Characters (use EXACT names given, zero substitutions):
-{', '.join(named_characters)}
-
-Style: {style}
-Vocabulary level: {vocabulary}
-Length: EXACTLY {sentence_count} sentences — count every sentence before finishing.
-
-════════════════════════════════════════
-🐾  PHYSICAL REALITY  —  NON-NEGOTIABLE
-════════════════════════════════════════
-Every character MUST behave according to their REAL biological nature.
-Children's stories must be imaginative but NOT physically impossible or false.
-
-What each character CAN do in this story:
+What your characters CAN do:
 {physical_rules}
 
-ABSOLUTE PHYSICAL RULES:
-❌ A snake CANNOT hug, clap, wave, or hold anything — it has no arms
-❌ A fish CANNOT walk, run, or knock on a door — it lives in water
-❌ A cow CANNOT climb a tree or open a door with hooves
-❌ Any animal WITHOUT hands CANNOT grab, throw, write, or point
-❌ A bird CANNOT kick a ball — it has wings, not feet for kicking
-❌ Animals that are natural predators/prey CANNOT be "best friends" without a strong magical reason
-❌ A child and a wild animal CANNOT "graze together" or do the same activities
-✅ Magic can explain ONE impossible thing — but it must be clearly magical, not just stated as normal
-✅ Animals can TALK in a magical story — but they still move as their body allows
+CONCRETE FORBIDDEN EXAMPLES — never write anything like these:
+❌ "the snake hugged him"           → snakes have no arms
+❌ "the fish held out a hand"       → fish have no hands
+❌ "the rabbit clapped"             → rabbits don't clap
+❌ "the bird kicked the ball"       → birds don't kick
+❌ "the cow climbed the tree"       → cows cannot climb
+❌ "the lion pointed at the door"   → lions don't point
 
-BEFORE writing each action, ask: "Can this character physically do this?" 
-If NO and it's not the ONE magical moment → rewrite it.
+NEVER use these expressions with an animal that has no hands:
+— "holds out a hand"  /  "reaches out a hand"  /  "takes his hand"
+— "grabs" / "points" / "waves" / "claps" / "writes" / "draws"
 
-════════════════════════════════════════
-🎭  CHARACTER CONSTRUCTION  —  MANDATORY
-════════════════════════════════════════
-The main character MUST have ALL of the following:
+Instead use natural animal actions:
+— a rabbit TWITCHES its nose, HOPS closer, NUDGES with its head
+— a fish SWIMS in circles, BLOWS bubbles, FLICKS its tail
+— a bird TILTS its head, HOPS on a branch, CHIRPS softly
+— a cat PURRS, CURLS UP, RUBS against a leg
 
-① ONE core personality trait — choose from this list, NEVER use "curious":
-   [ brave / shy / clumsy / stubborn / dreamy / silly / overconfident / 
-     impatient / generous / fearful / mischievous / perfectionist / daydreamer ]
+═══════════════════════════════════════════════════════════
+⚠️  RULE #2 — COHERENT MAGIC  (SECOND MOST IMPORTANT)
+═══════════════════════════════════════════════════════════
+Things stay what they ARE. You can have a magical ADVENTURE,
+but you CANNOT invent absurd fusions or impossible transformations.
 
-② ONE small physical quirk or habit natural to their species:
-   For animals: twitches nose / wags tail nervously / tilts head / 
-   flicks ears / stamps hooves / puffs feathers
-   For children: taps foot when thinking / hums when nervous /
-   counts things under their breath / carries a worn-out blanket
+CONCRETE FORBIDDEN EXAMPLES:
+❌ "a lion with rainbow hair"              → a lion has fur, not rainbow hair
+❌ "a dinosaur made of snow that became real" → snow is snow, dinosaurs are dinosaurs
+❌ "the rabbit's ears were made of clouds"  → ears are ears
+❌ "her hair turned into a river"           → hair is hair
+❌ "the tree walked down the hill"          → trees don't walk
+❌ "the cookie started singing"             → cookies are food, not alive
 
-③ ONE favorite object OR comfort thing that appears in the story naturally
+If the child's elements are "rainbow" + "lion":
+✅ The lion SEES a beautiful rainbow after the rain.
+✅ The lion WALKS toward the rainbow, wondering where it ends.
+❌ The lion HAS rainbow-colored fur. (NO — absurd fusion)
 
-④ The personality trait MUST be the KEY reason the problem gets solved.
+If the child's elements are "dinosaur" + "snow":
+✅ A small dinosaur plays in the first snow of winter.
+❌ A dinosaur MADE OF snow comes to life. (NO — nonsense)
 
-════════════════════════════════════════
-🌍  WORLD BUILDING  —  MANDATORY
-════════════════════════════════════════
-The story world must feel ALIVE and SPECIFIC — not generic.
+Magic is ALLOWED when it's clear and simple:
+✅ Animals can talk (classic fairy tale magic)
+✅ A small glowing flower, a friendly cloud, a talking star
+✅ ONE clearly magical moment in the whole story
 
-① Give the setting at least 2 unique sensory details:
-   ❌ BAD: "a forest" / "a sunny beach" / "a magical land"
-   ✅ GOOD: "a forest where the moss glowed faintly after rain"
-   ✅ GOOD: "a beach where the tide left behind tiny silver shells"
+═══════════════════════════════════════════════════════════
+📖  STORY FOUNDATION
+═══════════════════════════════════════════════════════════
+{story_context}
 
-② Include woven naturally:
-   • 1 SOUND
-   • 1 SMELL or TEXTURE
-   • 1 surprising VISUAL detail
+Characters (use the EXACT names given — zero substitutions):
+{', '.join(named_characters)}
 
-════════════════════════════════════════
-🏗️  STORY ARCHITECTURE  —  FOLLOW EXACTLY
-════════════════════════════════════════
-Opening phrase for this story: "{chosen_opening}"
-Use EXACTLY this phrase to start your first sentence. Do NOT use "Once upon a time" unless that IS the chosen opening.
+Length: EXACTLY {sentence_count} sentences. Count them.
+Style: {style}
+Vocabulary: {vocabulary} — simple, clear, easy for a {age}-year-old.
+Tone: JOYFUL, warm, gentle. Never dark. Never sad ending.
+Value to teach invisibly (never name it): {chosen_value}
 
-Distribute your {sentence_count} sentences across these four acts:
+═══════════════════════════════════════════════════════════
+🎬  OPENING
+═══════════════════════════════════════════════════════════
+Start your FIRST sentence with EXACTLY this phrase: "{chosen_opening}"
+Do NOT use "Once upon a time" unless that IS the chosen phrase.
 
-┌─────────────────────────────────────────────────────┐
-│  ACT 1 — OPENING          (~15% of sentences)       │
-│  • Start with "{chosen_opening}"                    │
-│  • Introduce character + world + personality hint   │
-│  • First sentence must make the child lean in       │
-│                                                     │
-│  ACT 2 — THE PROBLEM      (~30% of sentences)       │
-│  • ONE clear problem personal to THIS character     │
-│  • Show the character trying and failing once       │
-│  • Build genuine tension                            │
-│                                                     │
-│  ACT 3 — THE MAGICAL MOMENT  (~25% of sentences)   │
-│  • ONE truly wondrous event — earned, not random    │
-│  • Write it slowly — let the child feel the wonder  │
-│                                                     │
-│  ACT 4 — RESOLUTION       (~30% of sentences)       │
-│  • Resolution comes FROM the character's trait      │
-│  • Last sentence must be poetic and memorable       │
-│  • End with emotion, wonder, or quiet satisfaction  │
-└─────────────────────────────────────────────────────┘
+═══════════════════════════════════════════════════════════
+🎯  ENDING — MANDATORY TYPE FOR THIS STORY
+═══════════════════════════════════════════════════════════
+Your ending MUST be this specific type (NOT a friendship ending):
 
-════════════════════════════════════════
-💡  STORY VALUE  —  INVISIBLE TEACHING
-════════════════════════════════════════
-Teach this naturally: {chosen_value}
-Never name it. Never summarize it. The child must FEEL it.
+👉 {chosen_ending}
 
-════════════════════════════════════════
-✍️  WRITING CRAFT  —  NON-NEGOTIABLE
-════════════════════════════════════════
-① RHYTHM — Mix sentence lengths deliberately
-② SHOW DON'T TELL — NEVER declare emotions, show through behavior
-③ DIALOGUE — minimum 1, maximum 3 lines. Each line unique to this character
-④ WORD VARIETY — never use same descriptive word twice
-⑤ BANNED WORDS: very / really / just / nice / beautiful / happy / sad / good / bad / curious
-
-════════════════════════════════════════
-🚫  BANNED LIST  —  ZERO TOLERANCE
-════════════════════════════════════════
-BANNED ENDINGS:
+ABSOLUTELY BANNED ENDINGS:
 ❌ "they became best friends"
 ❌ "they lived happily ever after"
 ❌ "from that day on, they were inseparable"
-❌ "and so [character] learned that..."
-❌ "they played together every day after that"
+❌ "they played together every day"
 ❌ "it was the best day ever"
-❌ Any sentence that summarizes the moral explicitly
-❌ Any ending that is just "everyone was happy"
+❌ Any moral summary ("and so [X] learned that...")
+❌ Any forced friendship between characters and objects
+❌ Any forced friendship between predator and prey
 
-BANNED PLOTS:
-❌ Character meets smaller creature → saves it → best friends
-❌ Two characters argue → make up → best friends
-❌ Character goes for a walk → finds something → shares it
-❌ Character is lost → gets found → everyone happy
+═══════════════════════════════════════════════════════════
+🎭  CHARACTER DEPTH
+═══════════════════════════════════════════════════════════
+Give the main character ONE clear personality trait (pick one, not "curious"):
+brave / shy / clumsy / stubborn / dreamy / silly / generous / 
+mischievous / patient / daydreamer / kind-hearted / adventurous
 
-BANNED PHYSICAL ACTIONS (unless it's the ONE magical moment):
-❌ Animals doing human things with body parts they don't have
-❌ Predator and prey acting like they naturally like each other
-❌ Characters doing activities impossible for their species
+This trait must be the REASON the problem gets solved.
 
-════════════════════════════════════════
-✅  FINAL CHECK BEFORE YOU WRITE
-════════════════════════════════════════
-□ Does my story start with exactly: "{chosen_opening}"?
-□ Does every action respect the character's physical biology?
-□ Is my ending original — NOT a cliché friendship or happiness summary?
-□ Does my character's personality DRIVE the resolution?
-□ Have I shown emotions through behavior, never declared them?
-□ Is my last sentence beautiful and memorable?
-□ Have I counted EXACTLY {sentence_count} sentences?
+Show emotions through ACTIONS, not labels:
+❌ "she was sad"          → ✅ "she looked down at her feet"
+❌ "he was happy"         → ✅ "he hummed as he walked"
+❌ "she was scared"       → ✅ "her hands trembled a little"
 
-════════════════════════════════════════
-🖊️  NOW WRITE
-════════════════════════════════════════
-Start directly with "{chosen_opening}" — no preamble, no title, no explanation.
-Pure story. Nothing else.
+═══════════════════════════════════════════════════════════
+🌍  SETTING (make it feel real)
+═══════════════════════════════════════════════════════════
+Include AT LEAST one of each, woven naturally into the story:
+• One SOUND (rustling leaves, a soft bell, distant water)
+• One SMELL or TEXTURE (warm bread, soft moss, cool wind)
+• One specific VISUAL detail (tiny yellow flowers, a crooked fence)
 
-Write the story now:"""
+═══════════════════════════════════════════════════════════
+🏗️  STRUCTURE  (distribute {sentence_count} sentences)
+═══════════════════════════════════════════════════════════
+• BEGINNING (~20%) — introduce character and world gently
+• PROBLEM (~30%) — ONE clear problem for this character
+• TURNING POINT (~25%) — one small moment of wonder or discovery
+• ENDING (~25%) — execute the mandatory ending type above
+
+═══════════════════════════════════════════════════════════
+✍️  WRITING RULES
+═══════════════════════════════════════════════════════════
+• Simple sentences. One idea per sentence.
+• Mix short and medium sentence lengths.
+• Dialogue: 1 to 3 lines maximum, simple and sweet.
+• BANNED WORDS: very, really, just, nice, beautiful, happy, sad, good, bad, curious
+• Each action must be physically possible (see RULE #1).
+• Each magical element must be coherent (see RULE #2).
+
+═══════════════════════════════════════════════════════════
+✅  FINAL SELF-CHECK  (before writing, silently verify)
+═══════════════════════════════════════════════════════════
+□ Does my story START with exactly: "{chosen_opening}"?
+□ Does EVERY action respect real animal biology (RULE #1)?
+□ Did I AVOID absurd fusions like rainbow-hair-lion (RULE #2)?
+□ Does my ending match the MANDATORY type above (not a friendship ending)?
+□ Is my tone JOYFUL and warm throughout?
+□ Did I count EXACTLY {sentence_count} sentences?
+
+═══════════════════════════════════════════════════════════
+🖊️  NOW WRITE  (story only, no title, no preamble)
+═══════════════════════════════════════════════════════════
+Start directly with "{chosen_opening}":"""
 
     bedrock_response = bedrock.invoke_model(
         modelId='anthropic.claude-3-haiku-20240307-v1:0',
