@@ -61,10 +61,38 @@ USE_ELEVENLABS = True
 ELEVENLABS_API_KEY = os.getenv('ELEVENLABS_API_KEY')
 
 ELEVENLABS_VOICES = {
-    'fr': 'PSVUmed8NvS8aUA3d5oO',  # Narration FR (voix Houda)
-    'en': 'lxYfHSkYm1EzQzGhdbfc',  # Narration EN (voix Houda)
-    'es': '1eHrpOW5l98cxiSRjbzJ',  # Raquel
-    'ar': 'mRdG9GYEjJmIzqbYTidv',  # Sana
+    'fr': {
+        'narrator': 'uPSVUmed8NvS8aUA3d5oO',
+        'male':     'GFj5Qf6cNQ3Lgp8VKBwc',
+        'female':   'F1toM6PcP54s45kOOAyV',
+        'child':    'AqX3O1nij56oCicN2U6w',
+    },
+    'en': {
+        'narrator': 'lxYfHSkYm1EzQzGhdbfc',
+        'male':     'sB7vwSCyX0tQmU24cW2C',
+        'female':   'DODLEQrClDo8wCz460ld',
+        'child':    'iukn3a1vSSNFmdi5NZS4',
+    },
+    'es': {
+        'narrator': '1eHrpOW5l98cxiSRjbzJ',
+        'male':     '1eHrpOW5l98cxiSRjbzJ',
+        'female':   '1eHrpOW5l98cxiSRjbzJ',
+        'child':    '1eHrpOW5l98cxiSRjbzJ',
+    },
+    'ar': {
+        'narrator': 'mRdG9GYEjJmIzqbYTidv',
+        'male':     'mRdG9GYEjJmIzqbYTidv',
+        'female':   'mRdG9GYEjJmIzqbYTidv',
+        'child':    'mRdG9GYEjJmIzqbYTidv',
+    },
+}
+
+# Mapping from Polly voice names to ElevenLabs roles
+POLLY_TO_ELEVENLABS_ROLE = {
+    'Joanna':   'narrator', 'Lea':    'narrator',
+    'Lupe':     'narrator', 'Zeina':  'narrator',
+    'Matthew':  'male',     'Mathieu': 'male',     'Miguel': 'male',
+    'Amy':      'female',   'Celine':  'female',   'Penelope': 'female',
 }
 
 POLLY_VOICES = {
@@ -292,9 +320,11 @@ def polly_tts(text: str, voice_id: str, language: str = 'en') -> bytes:
     # ── Try ElevenLabs first if enabled and language supported ──
     if USE_ELEVENLABS and language in ELEVENLABS_VOICES and ELEVENLABS_API_KEY:
         try:
-            el_voice_id = ELEVENLABS_VOICES[language]
+            # Pick the right ElevenLabs voice based on the Polly voice_id role
+            role = POLLY_TO_ELEVENLABS_ROLE.get(voice_id, 'narrator')
+            el_voice_id = ELEVENLABS_VOICES[language].get(role, ELEVENLABS_VOICES[language]['narrator'])
             audio_bytes = elevenlabs_tts(text, el_voice_id, language)
-            print(f"✅ ElevenLabs TTS ({language}, voice {el_voice_id[:8]}…)")
+            print(f"✅ ElevenLabs TTS ({language}/{role}, voice {el_voice_id[:8]}…)")
             return audio_bytes
         except Exception as e:
             print(f"⚠️ ElevenLabs failed ({e}) — falling back to AWS Polly")
@@ -1369,6 +1399,37 @@ ABSOLUTELY BANNED ENDINGS:
 ❌ Any forced friendship between predator and prey
 
 ═══════════════════════════════════════════════════════════
+💬  DIALOGUE — MANDATORY (takes advantage of multiple voices)
+═══════════════════════════════════════════════════════════
+This story MUST include real spoken dialogue between characters.
+Dialogue makes the story come alive and gives each character a real voice.
+
+MANDATORY REQUIREMENTS:
+✅ Include AT LEAST 2 lines of dialogue (3 is even better)
+✅ Dialogue must feel NATURAL and fit the character's personality
+✅ Each dialogue line MUST be wrapped in double quotes: "like this"
+✅ Dialogue must MOVE THE STORY FORWARD (reveal emotion, start an action, solve the problem)
+✅ Keep each line SHORT and simple — 4 to 12 words maximum per line
+✅ Use age-appropriate vocabulary for a {age}-year-old
+
+FORMAT EXAMPLES (follow this exact format):
+✅ Luna whispered, "I can hear something in the bushes."
+✅ "Wait for me!" called Milo, hopping behind her.
+✅ The little girl looked up and said, "Thank you for finding it."
+
+AVOID:
+❌ Long speeches or monologues (more than 2 sentences in one quote)
+❌ Dialogue that just describes what we already see
+❌ Fake-sounding dialogue ("Oh what a wonderful day it is today indeed!")
+❌ Adult/complex vocabulary
+❌ Dialogue without quotes (REQUIRED for voice recognition)
+
+WHY THIS MATTERS:
+The app uses different voices for the narrator and the characters who speak.
+Without dialogue wrapped in quotes, the child will only hear one voice.
+With dialogue in quotes, the story becomes a real audiobook with multiple voices.
+
+═══════════════════════════════════════════════════════════
 🎭  CHARACTER DEPTH
 ═══════════════════════════════════════════════════════════
 Give the main character ONE clear personality trait (pick one, not "curious"):
@@ -1415,6 +1476,7 @@ Include AT LEAST one of each, woven naturally into the story:
 □ Does EVERY action respect real animal biology (RULE #1)?
 □ Did I AVOID absurd fusions like rainbow-hair-lion (RULE #2)?
 □ Does my ending match the MANDATORY type above (not a friendship ending)?
+□ Did I include AT LEAST 2 lines of dialogue in "double quotes"?
 □ Is my tone JOYFUL and warm throughout?
 □ Did I count EXACTLY {sentence_count} sentences?
 
