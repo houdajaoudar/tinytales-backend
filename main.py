@@ -56,6 +56,17 @@ polly = boto3.client('polly', region_name='us-east-1',
     aws_access_key_id=os.getenv('AWS_ACCESS_KEY_ID'),
     aws_secret_access_key=os.getenv('AWS_SECRET_ACCESS_KEY'))
 
+# ── ElevenLabs TTS configuration (primary provider, Polly as fallback) ──
+USE_ELEVENLABS = True
+ELEVENLABS_API_KEY = os.getenv('ELEVENLABS_API_KEY')
+
+ELEVENLABS_VOICES = {
+    'fr': 'tLK6fPv15M0oKv4V3ACR',  # Melanie
+    'en': '9RpXYdocFG8u7K3pqNxi',  # Samantha Narrations
+    'es': '1eHrpOW5l98cxiSRjbzJ',  # Raquel
+    'ar': 'mRdG9GYEjJmIzqbYTidv',  # Sana
+}
+
 POLLY_VOICES = {
     'en': {'narrator': 'Joanna', 'character1': 'Matthew', 'character2': 'Amy'},
     'fr': {'narrator': 'Lea',    'character1': 'Mathieu', 'character2': 'Celine'},
@@ -250,7 +261,45 @@ async def send_email(to_email: str, subject: str, body: str, html_body: str = No
         return False
 
 
+def elevenlabs_tts(text: str, voice_id: str, language: str = 'en') -> bytes:
+    """Generate speech audio via ElevenLabs TTS. Returns MP3 bytes.
+
+    Uses the multilingual v2 model with natural storytelling voice settings.
+    Raises on HTTP error — caller is responsible for catching and falling back.
+    """
+    url = f"https://api.elevenlabs.io/v1/text-to-speech/{voice_id}"
+    headers = {
+        "xi-api-key": ELEVENLABS_API_KEY,
+        "Content-Type": "application/json",
+        "Accept": "audio/mpeg",
+    }
+    payload = {
+        "text": text[:2900],
+        "model_id": "eleven_multilingual_v2",
+        "voice_settings": {
+            "stability": 0.5,
+            "similarity_boost": 0.75,
+            "style": 0.3,
+            "use_speaker_boost": True,
+        },
+    }
+    response = req_lib.post(url, headers=headers, json=payload, timeout=60)
+    response.raise_for_status()
+    return response.content
+
+
 def polly_tts(text: str, voice_id: str, language: str = 'en') -> bytes:
+    # ── Try ElevenLabs first if enabled and language supported ──
+    if USE_ELEVENLABS and language in ELEVENLABS_VOICES and ELEVENLABS_API_KEY:
+        try:
+            el_voice_id = ELEVENLABS_VOICES[language]
+            audio_bytes = elevenlabs_tts(text, el_voice_id, language)
+            print(f"✅ ElevenLabs TTS ({language}, voice {el_voice_id[:8]}…)")
+            return audio_bytes
+        except Exception as e:
+            print(f"⚠️ ElevenLabs failed ({e}) — falling back to AWS Polly")
+
+    # ── Original AWS Polly code (unchanged) ──
     engine = 'standard' if language == 'ar' else 'neural'
     neural_voices = ['Joanna', 'Matthew', 'Amy', 'Lea', 'Lupe']
     if voice_id not in neural_voices:
@@ -418,7 +467,10 @@ class TranslateRequest(BaseModel):
 
 @app.get("/")
 async def root():
-    return {"message": "TinyTales API running"}
+    return {
+        "message": "TinyTales API running",
+        "audio_provider": "ElevenLabs + AWS Polly (fallback)" if USE_ELEVENLABS else "AWS Polly"
+    }
 
 
 @app.post("/register")
