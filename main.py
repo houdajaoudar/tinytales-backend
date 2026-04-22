@@ -62,13 +62,13 @@ ELEVENLABS_API_KEY = os.getenv('ELEVENLABS_API_KEY')
 
 ELEVENLABS_VOICES = {
     'fr': {
-        'narrator': 'uPSVUmed8NvS8aUA3d5oO',
+        'narrator': 'ucMmKRQbfDEYyb2IIGax',
         'male':     'GFj5Qf6cNQ3Lgp8VKBwc',
         'female':   'F1toM6PcP54s45kOOAyV',
         'child':    'AqX3O1nij56oCicN2U6w',
     },
     'en': {
-        'narrator': 'lxYfHSkYm1EzQzGhdbfc',
+        'narrator': 'cVd39cx0VtXNC13y5Y7z',
         'male':     'sB7vwSCyX0tQmU24cW2C',
         'female':   'DODLEQrClDo8wCz460ld',
         'child':    'iukn3a1vSSNFmdi5NZS4',
