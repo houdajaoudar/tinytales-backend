@@ -1,4 +1,8 @@
 from fastapi import FastAPI, Depends, HTTPException, UploadFile, File, Request, Form
+# ── Configuration ffmpeg pour pydub (via imageio-ffmpeg, pas besoin d'apt.txt) ──
+import imageio_ffmpeg
+import os as _os
+_os.environ["PATH"] = _os.path.dirname(imageio_ffmpeg.get_ffmpeg_exe()) + _os.pathsep + _os.environ.get("PATH", "")
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
