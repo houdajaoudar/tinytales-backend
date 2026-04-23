@@ -15,6 +15,7 @@ import io
 import requests as req_lib
 from datetime import datetime, timedelta
 from typing import List, Optional
+from anthropic import Anthropic
 from auth import hash_password, verify_password, create_access_token, get_current_user, get_current_user_optional, validate_password
 import smtplib
 from email.mime.text import MIMEText
@@ -55,6 +56,44 @@ bedrock = boto3.client('bedrock-runtime', region_name='us-east-1',
 polly = boto3.client('polly', region_name='us-east-1',
     aws_access_key_id=os.getenv('AWS_ACCESS_KEY_ID'),
     aws_secret_access_key=os.getenv('AWS_SECRET_ACCESS_KEY'))
+# ── Anthropic API client (fallback automatique si Bedrock bloqué) ──
+anthropic_client = Anthropic(api_key=os.getenv('ANTHROPIC_API_KEY'))
+CLAUDE_MODEL_BEDROCK = 'anthropic.claude-3-haiku-20240307-v1:0'
+CLAUDE_MODEL_ANTHROPIC = 'claude-haiku-4-5'
+
+
+def invoke_claude(messages, max_tokens=1000):
+    """
+    Appelle Claude via Bedrock en priorité (Claude 3 Haiku).
+    Si Bedrock échoue → fallback automatique vers l'API Anthropic directe (Claude Haiku 4.5).
+    Retourne le texte de la réponse (string).
+    """
+    # --- 1. Tentative AWS Bedrock ---
+    try:
+        response = bedrock.invoke_model(
+            modelId=CLAUDE_MODEL_BEDROCK,
+            body=json.dumps({
+                "anthropic_version": "bedrock-2023-05-31",
+                "max_tokens": max_tokens,
+                "messages": messages
+            })
+        )
+        return json.loads(response['body'].read())['content'][0]['text']
+    except Exception as e:
+        print(f"⚠️ Bedrock indisponible ({str(e)[:100]}) — fallback Anthropic API")
+
+    # --- 2. Fallback Anthropic API directe ---
+    try:
+        response = anthropic_client.messages.create(
+            model=CLAUDE_MODEL_ANTHROPIC,
+            max_tokens=max_tokens,
+            messages=messages
+        )
+        print("✅ Réponse via Anthropic API (fallback)")
+        return response.content[0].text
+    except Exception as e:
+        print(f"❌ Anthropic API a aussi échoué : {e}")
+        raise RuntimeError(f"Les deux providers Claude ont échoué : {e}")
 
 # ── ElevenLabs TTS configuration (primary provider, Polly as fallback) ──
 USE_ELEVENLABS = True
@@ -990,19 +1029,13 @@ Histoire à traduire :
 
     prefill = translated_opening
 
-    response = bedrock.invoke_model(
-        modelId='anthropic.claude-3-haiku-20240307-v1:0',
-        body=json.dumps({
-            "anthropic_version": "bedrock-2023-05-31",
-            "max_tokens": 1000,
-            "messages": [
-                {"role": "user", "content": translate_prompt},
-                {"role": "assistant", "content": prefill}
-            ]
-        })
+    response_text = invoke_claude(
+        messages=[
+            {"role": "user", "content": translate_prompt},
+            {"role": "assistant", "content": prefill}
+        ],
+        max_tokens=1000
     )
-    response_body = response['body'].read()
-    response_text = json.loads(response_body)['content'][0]['text']
     translated = prefill + response_text
     translated = unicodedata.normalize('NFC', translated)
     translated = post_process_translation(translated, data.language)
@@ -1094,15 +1127,10 @@ Output: dog, garden
 
 Now extract from the child's words:"""
 
-            intent_response = bedrock.invoke_model(
-                modelId='anthropic.claude-3-haiku-20240307-v1:0',
-                body=json.dumps({
-                    "anthropic_version": "bedrock-2023-05-31",
-                    "max_tokens": 50,
-                    "messages": [{"role": "user", "content": intent_prompt}]
-                })
-            )
-            extracted = json.loads(intent_response['body'].read())['content'][0]['text'].strip()
+            extracted = invoke_claude(
+                messages=[{"role": "user", "content": intent_prompt}],
+                max_tokens=50
+            ).strip()
             image_elements = [
                 w.strip().lower()
                 for w in extracted.split(',')
@@ -1136,25 +1164,21 @@ Now extract from the child's words:"""
                     elif image.filename.lower().endswith('.webp'):
                         media_type = "image/webp"
                 image_base64 = base64.b64encode(image_bytes).decode('utf-8')
-                vision_response = bedrock.invoke_model(
-                    modelId='anthropic.claude-3-haiku-20240307-v1:0',
-                    body=json.dumps({
-                        "anthropic_version": "bedrock-2023-05-31",
-                        "max_tokens": 30,
-                        "messages": [{
-                            "role": "user",
-                            "content": [
-                                {
-                                    "type": "image",
-                                    "source": {
-                                        "type": "base64",
-                                        "media_type": media_type,
-                                        "data": image_base64
-                                    }
-                                },
-                                {
-                                    "type": "text",
-                                    "text": """What is in this image? Reply with ONE simple common word only.
+                label = invoke_claude(
+                    messages=[{
+                        "role": "user",
+                        "content": [
+                            {
+                                "type": "image",
+                                "source": {
+                                    "type": "base64",
+                                    "media_type": media_type,
+                                    "data": image_base64
+                                }
+                            },
+                            {
+                                "type": "text",
+                                "text": """What is in this image? Reply with ONE simple common word only.
 Use the most basic word a child would use.
 RULES:
 - Any dog breed → 'dog'
@@ -1170,12 +1194,11 @@ RULES:
 - Any house/building → 'house'
 - Any ball → 'ball'
 Just one simple word, nothing else."""
-                                }
-                            ]
-                        }]
-                    })
-                )
-                label = json.loads(vision_response['body'].read())['content'][0]['text'].strip().lower()
+                            }
+                        ]
+                    }],
+                    max_tokens=30
+                ).strip().lower()
                 label = label.replace('.', '').replace(',', '').strip()
                 if label and len(label) < 30:
                     image_elements.append(label)
@@ -1485,19 +1508,13 @@ Include AT LEAST one of each, woven naturally into the story:
 ═══════════════════════════════════════════════════════════
 Start directly with "{chosen_opening}":"""
 
-    bedrock_response = bedrock.invoke_model(
-        modelId='anthropic.claude-3-haiku-20240307-v1:0',
-        body=json.dumps({
-            "anthropic_version": "bedrock-2023-05-31",
-            "max_tokens": max_tokens,
-            "messages": [
-                {"role": "user", "content": prompt},
-                {"role": "assistant", "content": chosen_opening}
-            ]
-        })
-    )
-
-    story_raw = json.loads(bedrock_response['body'].read())['content'][0]['text'].strip()
+    story_raw = invoke_claude(
+        messages=[
+            {"role": "user", "content": prompt},
+            {"role": "assistant", "content": chosen_opening}
+        ],
+        max_tokens=max_tokens
+    ).strip()
     story_en = chosen_opening + " " + story_raw
 
     lines = story_en.split('\n')
