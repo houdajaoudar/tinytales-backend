@@ -217,7 +217,13 @@ ANIMALS = ['dog', 'cat', 'rabbit', 'bear', 'fox', 'horse', 'cow', 'sheep',
            'pig', 'chicken', 'duck', 'fish', 'butterfly', 'bee', 'giraffe',
            'elephant', 'lion', 'tiger', 'monkey', 'panda', 'penguin', 'owl',
            'frog', 'bird', 'canary', 'parrot', 'swan', 'hamster', 'turtle',
-           'deer', 'goat', 'goose', 'ladybug', 'snail', 'dragon', 'unicorn']
+           'deer', 'goat', 'goose', 'ladybug', 'snail', 'dragon', 'unicorn',
+           'wolf', 'mouse', 'squirrel', 'hedgehog', 'koala', 'kangaroo',
+           'zebra', 'whale', 'dolphin', 'shark', 'octopus', 'crab', 'lobster',
+           'dinosaur', 'crocodile', 'lizard', 'spider', 'ant', 'dragonfly',
+           'raccoon', 'otter', 'seal', 'bat', 'eagle', 'hawk', 'peacock',
+           'flamingo', 'ostrich', 'pony', 'donkey', 'llama', 'camel',
+           'mermaid', 'fairy', 'phoenix', 'pegasus']
 
 PLACES = ['house', 'garden', 'forest', 'park', 'beach', 'mountain', 'river',
           'lake', 'castle', 'farm', 'school', 'market', 'city', 'village',
@@ -258,21 +264,75 @@ ANIMAL_ABILITIES = {
     'rabbit': 'can hop, twitch nose, nibble, dig, hide in bushes',
     'bear': 'can walk, roar, climb trees, swim, dig, sniff',
     'fox': 'can run, bark, trot, dig, sniff, leap over obstacles',
+    'wolf': 'can run fast, howl, trot, sniff, prick up ears, tilt head',
     'horse': 'can gallop, trot, neigh, swish tail, nudge with nose',
+    'pony': 'can trot, neigh, swish tail, nudge with nose',
+    'donkey': 'can trot, bray, swish tail, nudge with nose',
     'cow': 'can walk, moo, graze, swish tail, nudge with nose',
+    'sheep': 'can walk, baa, graze, nuzzle',
+    'goat': 'can climb rocks, bleat, nibble, butt with horns',
+    'pig': 'can trot, oink, snuffle, roll in mud',
+    'chicken': 'can peck, cluck, flap wings, scratch the ground',
     'bird': 'can fly, sing, peck, perch, flap wings, hop on ground',
+    'eagle': 'can fly high, soar, swoop, screech, perch',
+    'hawk': 'can fly fast, soar, cry out, swoop down',
+    'peacock': 'can walk, fan out tail feathers, call loudly',
+    'flamingo': 'can wade, stand on one leg, flap pink wings',
+    'ostrich': 'can run very fast, peck, flap small wings',
     'fish': 'can swim, splash, blow bubbles, leap from water',
+    'whale': 'can swim, spout water, dive, call in deep sounds',
+    'dolphin': 'can swim, leap, click and whistle, splash playfully',
+    'shark': 'can swim fast, glide silently, show teeth',
+    'octopus': 'can swim, wrap tentacles, change color, squirt ink',
+    'crab': 'can walk sideways, pinch with claws, hide in shell',
+    'lobster': 'can crawl, snap claws, wave antennae',
+    'seal': 'can swim, bark, clap flippers, slide on ice',
+    'otter': 'can swim, float on back, crack shells with paws',
     'butterfly': 'can fly, flutter wings, land on flowers',
     'bee': 'can fly, buzz, collect pollen, sting',
+    'dragonfly': 'can hover, dart, flutter thin wings',
+    'ladybug': 'can crawl, open tiny wings, fly briefly',
+    'ant': 'can crawl, carry small things, march in a line',
+    'spider': 'can crawl, spin silk, wait quietly on a web',
     'elephant': 'can walk, trumpet, use trunk to grab, spray water',
+    'giraffe': 'can walk, reach high leaves, swish tail',
+    'lion': 'can walk, roar, pounce, stretch, swish tail',
+    'tiger': 'can walk, growl, pounce, swim, twitch whiskers',
+    'zebra': 'can gallop, whinny, swish tail, prick up ears',
     'monkey': 'can climb, swing, run, screech, grab with hands',
+    'panda': 'can walk, climb, chew bamboo, roll over',
+    'koala': 'can climb trees, hug branches, munch leaves, nap',
+    'kangaroo': 'can hop, stand tall, twitch ears, carry a joey in its pouch',
+    'camel': 'can walk slowly, chew, plod, hum',
+    'llama': 'can walk, hum, spit, twitch ears',
     'penguin': 'can waddle, swim, slide on belly, flap flippers',
     'owl': 'can fly, hoot, turn head, perch, swoop',
+    'bat': 'can fly at night, hang upside down, squeak softly',
+    'raccoon': 'can climb, wash food in water, twitch whiskers',
+    'squirrel': 'can climb, leap between branches, twitch bushy tail, nibble',
+    'hedgehog': 'can walk, sniff, curl into a spiky ball, snuffle',
+    'mouse': 'can scurry, twitch whiskers, nibble, hide in tiny spaces',
+    'hamster': 'can run, stuff cheeks, burrow, twitch whiskers',
     'frog': 'can jump, croak, swim, catch insects with tongue',
+    'lizard': 'can dart, flick tongue, bask in sun, climb walls',
+    'crocodile': 'can swim, snap jaws, lurk in water, walk slowly',
     'duck': 'can waddle, quack, swim, fly, dip beak in water',
+    'goose': 'can waddle, honk, swim, flap big wings',
+    'swan': 'can glide on water, arch long neck, flap white wings',
+    'deer': 'can leap, prick up ears, nibble leaves, stand very still',
     'snail': 'can slide slowly, retract into shell, leave a trail',
     'turtle': 'can walk slowly, swim, retract into shell',
-    'default': 'can move in ways natural to its species',
+    'parrot': 'can fly, mimic sounds, perch, tilt head, squawk',
+    'canary': 'can fly, sing brightly, hop, perch',
+    # --- Magical creatures (story logic, not biology) ---
+    'dragon': 'can fly, breathe warm puffs of smoke, spread huge wings, roar softly',
+    'unicorn': 'can gallop, shake its rainbow mane, glow softly, touch things with its horn',
+    'dinosaur': 'can walk, roar, stomp, swish tail (describe size and steps)',
+    'mermaid': 'can swim, flip her tail, sing softly, surface to breathe',
+    'fairy': 'can fly with tiny wings, leave sparkles, whisper',
+    'phoenix': 'can fly, glow warm like embers, spread fiery wings',
+    'pegasus': 'can gallop, spread great feathered wings, take off into the sky',
+    'default': 'must move only in ways real to its species — if unsure, describe walking, looking, or making its natural sound',
 }
 
 def generate_code():
@@ -1178,22 +1238,41 @@ Now extract from the child's words:"""
                             },
                             {
                                 "type": "text",
-                                "text": """What is in this image? Reply with ONE simple common word only.
-Use the most basic word a child would use.
-RULES:
-- Any dog breed → 'dog'
-- Any cat breed → 'cat'
-- Any car type → 'car'
-- Any flower type → 'flower'
-- Any tree type → 'tree'
-- Any bird type → 'bird'
-- Any fish type → 'fish'
-- Any horse type → 'horse'
+                                "text": """What is the MAIN subject in this image?
+Reply with ONE simple common word in English. Nothing else.
+
+SIMPLIFICATION RULES — apply these FIRST (simplify breeds to species):
+- Any dog breed (husky, poodle, labrador...) → 'dog'
+- Any cat breed (persian, siamese...) → 'cat'
+- Any car type (truck, SUV, convertible...) → 'car'
+- Any flower type (rose, tulip, daisy...) → 'flower'
+- Any tree type (oak, pine, palm...) → 'tree'
+- Any fish type (salmon, goldfish...) → 'fish'
+- Any horse type (pony, stallion...) → 'horse'
 - Any cake/dessert → 'cake'
-- Any fruit → name simply (apple, banana, orange)
+- Any bread type → 'bread'
 - Any house/building → 'house'
-- Any ball → 'ball'
-Just one simple word, nothing else."""
+- Any ball type → 'ball'
+
+OTHERWISE — if the subject is NOT one of the simplifications above:
+Give the specific common word a child would use. Examples:
+- A wolf → 'wolf' (NOT 'dog')
+- A fox → 'fox'
+- A bear → 'bear'
+- A rabbit → 'rabbit'
+- A dragon → 'dragon'
+- A dinosaur → 'dinosaur'
+- A unicorn → 'unicorn'
+- A butterfly → 'butterfly'
+- A specific fruit → the fruit name (apple, banana, mango, strawberry...)
+- A specific vegetable → the vegetable name (carrot, tomato...)
+
+RULES:
+- ONE word only
+- Lowercase
+- English
+- No punctuation, no explanation, no prefix
+- If really unsure, use the closest common animal or object"""
                             }
                         ]
                     }],
