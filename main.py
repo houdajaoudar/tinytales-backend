@@ -467,41 +467,107 @@ def generate_speech_marks(text: str, voice_id: str, language: str = 'en') -> lis
 
 
 def parse_story_segments(story: str, named_characters: list, language: str = 'en') -> list:
+    """
+    Découpe l'histoire en segments narrateur/dialogue avec attribution de voix par personnage.
+
+    Stratégie pour trouver QUI parle :
+    1. Cherche le nom d'un personnage dans les 60 caractères AVANT le dialogue
+       (ex: "Luna said, \"Wait for me!\"" → Luna)
+    2. Si rien, cherche dans les 60 caractères APRÈS
+       (ex: "\"Wait for me!\" called Milo" → Milo)
+    3. Si toujours rien, alterne entre les voix des personnages (round-robin)
+    """
     import re
+
     lang_voices = POLLY_VOICES.get(language, POLLY_VOICES['en'])
     narrator_voice = lang_voices['narrator']
     char_voices_pool = [lang_voices['character1'], lang_voices['character2']]
 
-    segments = []
-    char_voice_map = {}
+    # --- 1. Assigner une voix à chaque personnage nommé ---
+    char_voice_map = {}  # clé = prénom en minuscules, valeur = voix Polly
     voice_index = 0
-
     for char in named_characters:
-        char_name = char.split()[0].lower()
-        if char_name not in char_voice_map:
-            char_voice_map[char_name] = char_voices_pool[voice_index % len(char_voices_pool)]
+        # "Luna the rabbit" → "luna" ; "Mia" → "mia"
+        first_name = char.split()[0].lower()
+        if first_name not in char_voice_map:
+            char_voice_map[first_name] = char_voices_pool[voice_index % len(char_voices_pool)]
             voice_index += 1
 
-    parts = re.split(r'(".*?"|\u201c.*?\u201d)', story)
+    # --- 2. Regex pour trouver tous les dialogues (guillemets " et « ») ---
+    dialogue_pattern = re.compile(r'("[^"]+"|\u201c[^\u201d]+\u201d|\u00ab[^\u00bb]+\u00bb)')
 
-    for part in parts:
-        part = part.strip()
-        if not part:
-            continue
-        is_dialogue = (part.startswith('"') and part.endswith('"')) or \
-                      (part.startswith('\u201c') and part.endswith('\u201d'))
-        if is_dialogue:
-            clean_text = part.strip('"').strip('\u201c').strip('\u201d')
-            assigned_voice = char_voices_pool[0]
-            for char_name, v in char_voice_map.items():
-                assigned_voice = v
+    segments = []
+    last_end = 0
+    fallback_voice_idx = 0  # pour alterner quand on ne sait pas qui parle
+
+    for match in dialogue_pattern.finditer(story):
+        start, end = match.span()
+        dialogue_text = match.group()
+
+        # Narration avant ce dialogue
+        narration_before = story[last_end:start].strip()
+        if narration_before:
+            segments.append({
+                "text": narration_before,
+                "voice_id": narrator_voice,
+                "language": language,
+            })
+
+        # Nettoyer le dialogue des guillemets
+        clean_dialogue = dialogue_text.strip('"\u201c\u201d\u00ab\u00bb').strip()
+
+        # --- Chercher qui parle : avant puis après ---
+        context_before = story[max(0, start - 60):start].lower()
+        context_after = story[end:min(len(story), end + 60)].lower()
+
+        assigned_voice = None
+        speaker_found = None
+
+        # Cherche d'abord dans le contexte AVANT
+        for name, voice in char_voice_map.items():
+            if name in context_before:
+                assigned_voice = voice
+                speaker_found = name
                 break
-            segments.append({"text": clean_text, "voice_id": assigned_voice, "language": language})
-        else:
-            if part:
-                segments.append({"text": part, "voice_id": narrator_voice, "language": language})
 
-    return segments if segments else [{"text": story, "voice_id": narrator_voice, "language": language}]
+        # Sinon dans le contexte APRÈS
+        if not assigned_voice:
+            for name, voice in char_voice_map.items():
+                if name in context_after:
+                    assigned_voice = voice
+                    speaker_found = name
+                    break
+
+        # Fallback : alterner entre les voix des personnages
+        if not assigned_voice:
+            assigned_voice = char_voices_pool[fallback_voice_idx % len(char_voices_pool)]
+            fallback_voice_idx += 1
+            speaker_found = "?"
+
+        print(f"  💬 Dialogue → {speaker_found} ({assigned_voice}): \"{clean_dialogue[:40]}...\"")
+
+        segments.append({
+            "text": clean_dialogue,
+            "voice_id": assigned_voice,
+            "language": language,
+        })
+
+        last_end = end
+
+    # Narration finale après le dernier dialogue
+    narration_after = story[last_end:].strip()
+    if narration_after:
+        segments.append({
+            "text": narration_after,
+            "voice_id": narrator_voice,
+            "language": language,
+        })
+
+    # Sécurité : s'il n'y a eu aucun dialogue, tout en narrateur
+    if not segments:
+        segments = [{"text": story, "voice_id": narrator_voice, "language": language}]
+
+    return segments
 
 
 def merge_audio_with_marks(segments: list) -> tuple:
