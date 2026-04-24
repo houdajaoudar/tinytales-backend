@@ -1,8 +1,21 @@
 from fastapi import FastAPI, Depends, HTTPException, UploadFile, File, Request, Form
 # ── Configuration ffmpeg pour pydub (via imageio-ffmpeg, pas besoin d'apt.txt) ──
-import imageio_ffmpeg
+# ── Configuration ffmpeg pour pydub (via imageio-ffmpeg, pas besoin d'apt.txt) ──
 import os as _os
-_os.environ["PATH"] = _os.path.dirname(imageio_ffmpeg.get_ffmpeg_exe()) + _os.pathsep + _os.environ.get("PATH", "")
+try:
+    import imageio_ffmpeg
+    _ffmpeg_path = imageio_ffmpeg.get_ffmpeg_exe()
+    _ffmpeg_dir = _os.path.dirname(_ffmpeg_path)
+    _os.environ["PATH"] = _ffmpeg_dir + _os.pathsep + _os.environ.get("PATH", "")
+    print(f"✅ ffmpeg configuré via imageio-ffmpeg : {_ffmpeg_path}")
+    # Dire à pydub explicitement où est ffmpeg (ceinture et bretelles)
+    from pydub import AudioSegment as _AudioSegment
+    _AudioSegment.converter = _ffmpeg_path
+    _AudioSegment.ffmpeg = _ffmpeg_path
+    _AudioSegment.ffprobe = _ffmpeg_path  # approximation, pas toujours nécessaire
+    print(f"✅ pydub AudioSegment.converter = {_ffmpeg_path}")
+except Exception as _e:
+    print(f"❌ Erreur config imageio-ffmpeg au démarrage : {_e}")
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
