@@ -125,9 +125,9 @@ ELEVENLABS_VOICES = {
     },
     'en': {
         'narrator': 'cVd39cx0VtXNC13y5Y7z',
-        'male':     'sB7vwSCyX0tQmU24cW2C',
+        'male':     'iukn3a1vSSNFmdi5NZS4',
         'female':   'DODLEQrClDo8wCz460ld',
-        'child':    'iukn3a1vSSNFmdi5NZS4',
+        'child':    'ocZQ262SsZb9RIxcQBOj',
     },
     'es': {
         'narrator': '1eHrpOW5l98cxiSRjbzJ',
